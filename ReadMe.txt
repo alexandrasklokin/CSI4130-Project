@@ -1,6 +1,9 @@
 Alexandra Sklokin 
 300010511
 
+Sneha George
+300006801
+
 _____Instructions________________________________________________________________________
 
 Needs to be run on a server using the command:
@@ -16,3 +19,6 @@ https://github.com/mrdoob/three.js/blob/master/examples/models/gltf/Stork.glb
 
 Two ViewPorts:
 https://github.com/mrdoob/three.js/blob/master/examples/webgl_camera.html
+
+CubeMap:
+https://opengameart.org/content/beach-skyboxes
