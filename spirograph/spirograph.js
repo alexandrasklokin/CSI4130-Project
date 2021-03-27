@@ -70,8 +70,8 @@ function init() {
 
 	geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
 
-	const particles = new THREE.Points( geometry, new THREE.PointsMaterial( { color: 0x888888 } ) );
-	scene.add( particles );
+	// const particles = new THREE.Points( geometry, new THREE.PointsMaterial( { color: 0x888888 } ) );
+	// scene.add( particles );
 
 	// _____________________________________________________________________ MY CODE _________________________________________________________________________
 	
@@ -82,6 +82,11 @@ function init() {
 	var tpMaterial = new THREE.MeshBasicMaterial({color: 0x32a852 });
 	//tpMesh = new THREE.Mesh(tpGeometry, tpMaterial);
 	//scene.add(tpMesh);
+
+	var sphereGeometry = new THREE.SphereBufferGeometry(150, 8, 6, 0, 2*Math.PI, 0, 0.15 * Math.PI);
+	sphereMesh = new THREE.Mesh(sphereGeometry, tpMaterial);
+	sphereMesh.position.y = -140 ;
+	scene.add(sphereMesh);
 
 	const loader = new THREE.GLTFLoader();
 
@@ -141,8 +146,8 @@ function render() {
 	scene.remove(tpMesh);
 
 	tpMesh.position.x = R*((1-k_temp)*Math.cos(t) + l_temp*k_temp*Math.cos((t*(1-k_temp))/(k_temp)) );
-	tpMesh.position.y = R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
-	tpMesh.position.z = R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+	tpMesh.position.y = 40; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+	tpMesh.position.z = R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
 
 	scene.add(tpMesh);
 
@@ -155,8 +160,8 @@ function render() {
         t = ((Math.PI / 180) * theta);
      
        	var tx = R*((1-k_temp)*Math.cos(t) + l_temp*k_temp*Math.cos((t*(1-k_temp))/(k_temp)) );
-		var ty = R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
-		var tz = R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+		var ty = 40; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+		var tz = R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
         
         spirographArray.push({x: tx , y: ty , z: tz});                               
     
