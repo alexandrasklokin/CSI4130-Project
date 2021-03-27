@@ -12,7 +12,7 @@ let SCREEN_HEIGHT = window.innerHeight;
 let aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
 
 let container;
-let scene, renderer, tpMesh, lineMesh, radius, R, spirographArray;
+let scene, renderer, tpMesh, tp2Mesh, tp3Mesh, lineMesh, radius, R, spirographArray;
 let cameraRig, camera, camera1, camera2;
 let controls;
 const frustumSize = 200;
@@ -30,36 +30,31 @@ function init() {
 	var axes = new THREE.AxesHelper(40);
     scene.add(axes);
 
-    scene.background = new THREE.CubeTextureLoader()
-	.setPath( 'textures/' )
-	.load( [
-		'px.png',
-		'nx.png',
-		'py.png',
-		'ny.png',
-		'pz.png',
-		'nz.png'
-	] );
-
 	//
 
 	camera = new THREE.OrthographicCamera( frustumSize  / - 2, frustumSize / 2, frustumSize / 2, frustumSize / - 2, 1, 10000 ); //new THREE.PerspectiveCamera( 50, 0.5 * aspect, 1, 10000 );
 	camera.position.z = 200;
 
-	camera1 =  new THREE.PerspectiveCamera( 50, 0.5 * aspect, 1, 10000 );
+	camera1 =  new THREE.PerspectiveCamera( 50, 0.5 * aspect, 1, 100000 );
 
 	//
-	camera2 = new THREE.PerspectiveCamera( 50, 0.5 * aspect, 1, 10000 );
+	camera2 = new THREE.PerspectiveCamera( 500, 0.5 * aspect, 1, 100000 );
+
+	//cameraOrtho.rotation.y = Math.PI;
+	//camera2.rotation.y = Math.PI;
 
 	// counteract different front orientation of cameras vs rig
 
 	//camera1.rotation.y = Math.pi;
 	//camera2.rotation.z = Math.pi;
 
-	camera1.position.y = 250;
-	camera2.position.z = 200;
+	//camera1.position.y = 500;
+	//camera2.position.z = 1000;
 
 	cameraRig = new THREE.Group();
+
+	camera1.position.y = 300;
+	camera2.position.z = 75;
 
 	cameraRig.add( camera1 );
 	cameraRig.add( camera2 );
@@ -84,6 +79,17 @@ function init() {
 	// const particles = new THREE.Points( geometry, new THREE.PointsMaterial( { color: 0x888888 } ) );
 	// scene.add( particles );
 
+	scene.background = new THREE.CubeTextureLoader()
+	.setPath( '../beach-skyboxes/LarnacaBeach/' )
+	.load( [
+		'posx.jpg',
+		'negx.jpg',
+		'posy.jpg',
+		'negy.jpg',
+		'posz.jpg',
+		'negz.jpg'
+	] );
+
 	// _____________________________________________________________________ MY CODE _________________________________________________________________________
 	
 	radius = 20;
@@ -91,11 +97,12 @@ function init() {
 
 	var tpGeometry = new THREE.TeapotGeometry(3, 3, true, true, true, false, false);
 	var tpMaterial = new THREE.MeshBasicMaterial({color: 0x32a852 });
-	//tpMesh = new THREE.Mesh(tpGeometry, tpMaterial);
+	// tpMesh = new THREE.Mesh(tpGeometry, tpMaterial);
 	//scene.add(tpMesh);
 
-	var sphereGeometry = new THREE.SphereBufferGeometry(150, 8, 6, 0, 2*Math.PI, 0, 0.15 * Math.PI);
-	sphereMesh = new THREE.Mesh(sphereGeometry, tpMaterial);
+	var sphereGeometry = new THREE.SphereBufferGeometry(150, 40, 40, 0, 2*Math.PI, 0, 0.15 * Math.PI);
+	var sandMaterial = new THREE.MeshBasicMaterial({color: 0xcfcea3});
+	sphereMesh = new THREE.Mesh(sphereGeometry, sandMaterial);
 	sphereMesh.position.y = -140 ;
 	scene.add(sphereMesh);
 
@@ -105,14 +112,43 @@ function init() {
   	'Stork.glb', 
   	function ( gltf ) { 
   		console.log(gltf);		
+		gltf.scenes[0].children[0].scale.x = .15;
+		gltf.scenes[0].children[0].scale.y = .15;
+		gltf.scenes[0].children[0].scale.z = .15;
+		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0x32a852 });
+		tpMesh = Object.create(gltf.scenes[0].children[0]);
+		console.log(tpMesh);
+	 } 
+	);
+
+	loader.load( 
+  	'Parrot.glb', 
+  	function ( gltf ) { 
+  		console.log(gltf);		
 		//gltf.scene.scale.x = .2;
 		//gltf.scene.scale.y = .2;
 		//gltf.scene.scale.z = .2;
 		gltf.scenes[0].children[0].scale.x = .15;
 		gltf.scenes[0].children[0].scale.y = .15;
 		gltf.scenes[0].children[0].scale.z = .15;
-		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0x32a852 });
-		tpMesh = Object.create(gltf.scenes[0].children[0]);
+		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0xa86032 });
+		tp2Mesh = Object.create(gltf.scenes[0].children[0]);
+		console.log(tpMesh);
+	 } 
+	);
+
+    loader.load( 
+  	'Flamingo.glb', 
+  	function ( gltf ) { 
+  		console.log(gltf);		
+		//gltf.scene.scale.x = .2;
+		//gltf.scene.scale.y = .2;
+		//gltf.scene.scale.z = .2;
+		gltf.scenes[0].children[0].scale.x = .15;
+		gltf.scenes[0].children[0].scale.y = .15;
+		gltf.scenes[0].children[0].scale.z = .15;
+		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0xa8329c });
+		tp3Mesh = Object.create(gltf.scenes[0].children[0]);
 		console.log(tpMesh);
 	 } 
 	);
@@ -148,6 +184,8 @@ function init() {
 function render() {
 
 	var t = ((Math.PI / 180) * Date.now() * 0.03);
+	var t2 = ((Math.PI / 180) * Date.now() * 0.05);
+	var t3 = ((Math.PI / 180) * Date.now() * 0.04);
 	// console.log(Date.now());
 	var k_temp = controls.k;
 	var l_temp = controls.l; 
@@ -155,12 +193,24 @@ function render() {
 	var length_temp = controls.length;
 
 	scene.remove(tpMesh);
+	scene.remove(tp2Mesh);
+	scene.remove(tp3Mesh);
 
 	tpMesh.position.x = R*((1-k_temp)*Math.cos(t) + l_temp*k_temp*Math.cos((t*(1-k_temp))/(k_temp)) );
 	tpMesh.position.y = 40; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
 	tpMesh.position.z = R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
 
+	tp2Mesh.position.x = R*((1-k_temp)*Math.cos(t2) + l_temp*k_temp*Math.cos((t2*(1-k_temp))/(k_temp)) );
+	tp2Mesh.position.y = 60; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+	tp2Mesh.position.z = R*((1-k_temp)*Math.sin(t2) - l_temp*k_temp*Math.sin((t2*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+
+	tp3Mesh.position.x = R*((1-k_temp)*Math.cos(t3) + l_temp*k_temp*Math.cos((t3*(1-k_temp))/(k_temp)) );
+	tp3Mesh.position.y = 50; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+	tp3Mesh.position.z = R*((1-k_temp)*Math.sin(t3) - l_temp*k_temp*Math.sin((t3*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+
 	scene.add(tpMesh);
+	scene.add(tp2Mesh);
+	scene.add(tp3Mesh);
 
 	scene.remove(lineMesh);
 
@@ -193,9 +243,9 @@ function render() {
 
 	camera2.lookAt(0,0,0);
 	renderer.setViewport( SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT );
-	//renderer.render( scene, camera2 );
+	renderer.render( scene, camera2 );
 
-	renderer.render( scene, camera );
+	//renderer.render( scene, camera );
 
 
 }
