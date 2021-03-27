@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+ <!-- 
+ ==========================================================================
+ $Id: camera.html,v 1.2 2019/01/28 12:36:56 jlang Exp $
+ Simple html page to experiment with Three.js 
+ ==========================================================================
+ (C)opyright:
+
+   Jochen Lang
+   EECS, University of Ottawa
+   800 King Edward Ave.
+   Ottawa, On., K1N 6N5
+   Canada.
+   http:www.eecs.uottawa.ca
+
+ Creator: jlang (Jochen Lang)
+ Email:   jlang@uottawa.ca
+ ==========================================================================
+ $Log: camera.html,v $
+ Revision 1.2  2019/01/28 12:36:56  jlang
+ Broken status.
+
+ Revision 1.1  2019/01/27 05:49:22  jlang
+ Added first draft of viewing lab.
+
+ Revision 1.2  2019/01/24 02:03:25  jlang
+ added starter code
+
+ Revision 1.1  2019/01/23 04:17:50  jlang
+ Created solar system with input from Pooja.
+
+ Revision 1.2  2019/01/12 19:52:50  jlang
+ Lab 0 solution; animation, resizing, various geometries
+
+ ========================================================================== 
+-->
+<html>
+  <head>
+    <title>CSI4130 Assignment 2</title>
+    <style>
+        body {
+            /* set margin to 0 and overflow to hidden, to go fullscreen */
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+  <body>	
+    <!-- Three.js API -->
+    <script type="text/javascript" src="../node_modules/three/build/three.js"></script>
+    <!-- Checking WebGL version example in Three.js -->
+    <script type="text/javascript" src="../node_modules/three/examples/js/WebGL.js"></script>
+    <script type="text/javascript" src="../node_modules/three/examples/js/geometries/TeapotGeometry.js"></script>
+    <script type="text/javascript" src="../node_modules/three/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- dat.gui for simple ui -->
+    <script type="text/javascript" src="../node_modules/dat.gui/build/dat.gui.js"></script>
+    <!-- js Code -->
+    <script type="text/javascript" src="spirograph.js"></script> 
+  </body>
+</html>
