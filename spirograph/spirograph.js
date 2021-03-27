@@ -30,6 +30,17 @@ function init() {
 	var axes = new THREE.AxesHelper(40);
     scene.add(axes);
 
+    scene.background = new THREE.CubeTextureLoader()
+	.setPath( 'textures/' )
+	.load( [
+		'px.png',
+		'nx.png',
+		'py.png',
+		'ny.png',
+		'pz.png',
+		'nz.png'
+	] );
+
 	//
 
 	camera = new THREE.OrthographicCamera( frustumSize  / - 2, frustumSize / 2, frustumSize / 2, frustumSize / - 2, 1, 10000 ); //new THREE.PerspectiveCamera( 50, 0.5 * aspect, 1, 10000 );
