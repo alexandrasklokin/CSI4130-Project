@@ -124,7 +124,7 @@ function init() {
 		gltf.scenes[0].children[0].scale.x = .15;
 		gltf.scenes[0].children[0].scale.y = .15;
 		gltf.scenes[0].children[0].scale.z = .15;
-		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0x000000 });
+		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0x32a852 });
 		tpMesh = Object.create(gltf.scenes[0].children[0]);
 		console.log(tpMesh);
 	 } 
