@@ -14,8 +14,8 @@ _____Sources____________________________________________________________________
 Spirograph 3D Shape: 
 https://fractalformulas.wordpress.com/flame-variations/spirograph3d/
 
-Stork Mesh:
-https://github.com/mrdoob/three.js/blob/master/examples/models/gltf/Stork.glb
+Animal Meshes:
+https://github.com/mrdoob/three.js/blob/master/examples/models/gltf/
 
 Two ViewPorts:
 https://github.com/mrdoob/three.js/blob/master/examples/webgl_camera.html
