@@ -12,7 +12,7 @@ let SCREEN_HEIGHT = window.innerHeight;
 let aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
 
 let container;
-let scene, renderer, tpMesh, tp2Mesh, tp3Mesh, lineMesh, radius, R, spirographArray;
+let scene, renderer, tpMesh, tp2Mesh, tp3Mesh, horseMesh, lineMesh, radius, R, spirographArray;
 let cameraRig, camera, camera1, camera2;
 let controls;
 const frustumSize = 200;
@@ -38,18 +38,8 @@ function init() {
 	camera1 =  new THREE.PerspectiveCamera( 50, 0.5 * aspect, 1, 100000 );
 
 	//
-	camera2 = new THREE.PerspectiveCamera( 500, 0.5 * aspect, 1, 100000 );
+	camera2 = new THREE.PerspectiveCamera( 130, 0.5 * aspect, 1, 100000 );
 
-	//cameraOrtho.rotation.y = Math.PI;
-	//camera2.rotation.y = Math.PI;
-
-	// counteract different front orientation of cameras vs rig
-
-	//camera1.rotation.y = Math.pi;
-	//camera2.rotation.z = Math.pi;
-
-	//camera1.position.y = 500;
-	//camera2.position.z = 1000;
 
 	cameraRig = new THREE.Group();
 
@@ -100,11 +90,28 @@ function init() {
 	// tpMesh = new THREE.Mesh(tpGeometry, tpMaterial);
 	//scene.add(tpMesh);
 
-	var sphereGeometry = new THREE.SphereBufferGeometry(150, 40, 40, 0, 2*Math.PI, 0, 0.15 * Math.PI);
+	var islandGeometry = new THREE.SphereBufferGeometry(150, 40, 40, 0, 2*Math.PI, 0, 0.15 * Math.PI);
 	var sandMaterial = new THREE.MeshBasicMaterial({color: 0xcfcea3});
-	sphereMesh = new THREE.Mesh(sphereGeometry, sandMaterial);
-	sphereMesh.position.y = -140 ;
-	scene.add(sphereMesh);
+	islandMesh = new THREE.Mesh(islandGeometry, sandMaterial);
+	islandMesh.position.y = -150 ;
+	scene.add(islandMesh);
+
+	var glassGeometry = new THREE.CylinderGeometry(4, 2.5, 10, 40, 40); //true);
+	var whiteMaterial = new THREE.MeshBasicMaterial({color: 0xffffff});
+	glassMesh = new THREE.Mesh(glassGeometry, whiteMaterial);
+	glassMesh.position.x = -30 ;
+	glassMesh.position.y = -2 ;
+	glassMesh.position.z = 30 ;
+	scene.add(glassMesh);
+
+	var canGeometry = new THREE.CylinderGeometry(6, 6, 10, 40, 40); //true);
+	var greyMaterial = new THREE.MeshBasicMaterial({color: 0x878787});
+	canMesh = new THREE.Mesh(canGeometry, greyMaterial);
+	// canMesh.rotation.z = -Math.pi/4;
+	canMesh.position.x = 30 ;
+	canMesh.position.y = -1 ;
+	canMesh.position.z = 30 ;
+	scene.add(canMesh);
 
 	const loader = new THREE.GLTFLoader();
 
@@ -133,7 +140,7 @@ function init() {
 		gltf.scenes[0].children[0].scale.z = .15;
 		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0xa86032 });
 		tp2Mesh = Object.create(gltf.scenes[0].children[0]);
-		console.log(tpMesh);
+		console.log(tp2Mesh);
 	 } 
 	);
 
@@ -141,15 +148,25 @@ function init() {
   	'Flamingo.glb', 
   	function ( gltf ) { 
   		console.log(gltf);		
-		//gltf.scene.scale.x = .2;
-		//gltf.scene.scale.y = .2;
-		//gltf.scene.scale.z = .2;
 		gltf.scenes[0].children[0].scale.x = .15;
 		gltf.scenes[0].children[0].scale.y = .15;
 		gltf.scenes[0].children[0].scale.z = .15;
 		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0xa8329c });
 		tp3Mesh = Object.create(gltf.scenes[0].children[0]);
-		console.log(tpMesh);
+		console.log(tp3Mesh);
+	 } 
+	);
+
+	loader.load( 
+  	'Horse.glb', 
+  	function ( gltf ) { 
+  		console.log(gltf);		
+		gltf.scenes[0].children[0].scale.x = .15;
+		gltf.scenes[0].children[0].scale.y = .15;
+		gltf.scenes[0].children[0].scale.z = .15;
+		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0x000000 });
+	    horseMesh = Object.create(gltf.scenes[0].children[0]);
+		console.log(horseMesh);
 	 } 
 	);
 
@@ -158,6 +175,8 @@ function init() {
     	this.k = 0.3;
    		this.length = 180*6;
    		this.R = 70;
+   		this.camera_latitude = 20;
+    	this.camera_longitude = 70;
     	this.redraw = function() { render(); }
     }
 
@@ -166,6 +185,8 @@ function init() {
     gui.add(controls, 'R', 20, 150).onChange(controls.redraw);
     gui.add(controls, 'l', 0, 1).onChange(controls.redraw);
     gui.add(controls, 'k', 0, 0.99).onChange(controls.redraw);
+    gui.add(controls, 'camera_latitude',  0, 89.9).onChange(controls.redraw); // 180).onChange(controls.redraw);
+    gui.add(controls, 'camera_longitude', -180, 180).onChange(controls.redraw);
 
 	// _____________________________________________________________________ MY CODE _________________________________________________________________________
 
@@ -197,20 +218,21 @@ function render() {
 	scene.remove(tp3Mesh);
 
 	tpMesh.position.x = R*((1-k_temp)*Math.cos(t) + l_temp*k_temp*Math.cos((t*(1-k_temp))/(k_temp)) );
-	tpMesh.position.y = 40; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+	tpMesh.position.y = 70; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
 	tpMesh.position.z = R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
 
 	tp2Mesh.position.x = R*((1-k_temp)*Math.cos(t2) + l_temp*k_temp*Math.cos((t2*(1-k_temp))/(k_temp)) );
-	tp2Mesh.position.y = 60; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+	tp2Mesh.position.y = 80; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
 	tp2Mesh.position.z = R*((1-k_temp)*Math.sin(t2) - l_temp*k_temp*Math.sin((t2*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
 
 	tp3Mesh.position.x = R*((1-k_temp)*Math.cos(t3) + l_temp*k_temp*Math.cos((t3*(1-k_temp))/(k_temp)) );
-	tp3Mesh.position.y = 50; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+	tp3Mesh.position.y = 60; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
 	tp3Mesh.position.z = R*((1-k_temp)*Math.sin(t3) - l_temp*k_temp*Math.sin((t3*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
 
 	scene.add(tpMesh);
 	scene.add(tp2Mesh);
 	scene.add(tp3Mesh);
+	scene.add(horseMesh);
 
 	scene.remove(lineMesh);
 
@@ -234,6 +256,16 @@ function render() {
 
 	renderer.clear();
 
+	// CAMERA LATITUDE and LONGITUDE
+    var result = camera2Pos(controls.camera_latitude, -controls.camera_longitude);
+    var result2 = camera2Pos(0, -controls.camera_longitude);
+    camera2.position.x = result[0];
+    camera2.position.y = result[1];
+    camera2.position.z = result[2];
+
+    camera1.position.x = result2[0];
+    camera1.position.z = result2[2];
+
 	camera1.updateProjectionMatrix();
 	camera2.updateProjectionMatrix();
 
@@ -247,6 +279,21 @@ function render() {
 
 	//renderer.render( scene, camera );
 
+
+}
+
+function camera2Pos(latitude, longtitude){
+
+    var radius = 75;
+  
+    var alpha   = (90-latitude)*(Math.PI/180)
+    var beta = (longtitude+180)*(Math.PI/180)
+
+    x = -((radius) * Math.sin(alpha)*Math.cos(beta))
+    z = ((radius) * Math.sin(alpha)*Math.sin(beta))
+    y = ((radius) * Math.cos(alpha))
+
+    return [x,y,z]
 
 }
 
