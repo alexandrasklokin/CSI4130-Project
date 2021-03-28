@@ -1,3 +1,5 @@
+CSI4130 - Computer Graphics Final Project
+
 Alexandra Sklokin 
 300010511
 
