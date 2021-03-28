@@ -13,7 +13,7 @@ let aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
 
 let container;
 let scene, renderer, tpMesh, tp2Mesh, tp3Mesh, horseMesh, lineMesh, radius, R, spirographArray;
-let cameraRig, camera, camera1, camera2;
+let cameraRig, camera, camera1, camera2, axes;
 let controls;
 const frustumSize = 200;
 
@@ -27,7 +27,7 @@ function init() {
 
 	scene = new THREE.Scene();
 
-	var axes = new THREE.AxesHelper(40);
+	axes = new THREE.AxesHelper(40);
     scene.add(axes);
 
 	//
@@ -44,7 +44,7 @@ function init() {
 	cameraRig = new THREE.Group();
 
 	camera1.position.y = 300;
-	camera2.position.z = 75;
+	// camera2.position.z = 75;
 
 	cameraRig.add( camera1 );
 	cameraRig.add( camera2 );
@@ -69,6 +69,8 @@ function init() {
 	// const particles = new THREE.Points( geometry, new THREE.PointsMaterial( { color: 0x888888 } ) );
 	// scene.add( particles );
 
+	// _____________________________________________________________________ MY CODE _________________________________________________________________________
+
 	scene.background = new THREE.CubeTextureLoader()
 	.setPath( '../beach-skyboxes/LarnacaBeach/' )
 	.load( [
@@ -80,22 +82,21 @@ function init() {
 		'negz.jpg'
 	] );
 
-	// _____________________________________________________________________ MY CODE _________________________________________________________________________
 	
-	radius = 20;
-
-
+	// TEAPOT
 	var tpGeometry = new THREE.TeapotGeometry(3, 3, true, true, true, false, false);
 	var tpMaterial = new THREE.MeshBasicMaterial({color: 0x32a852 });
 	// tpMesh = new THREE.Mesh(tpGeometry, tpMaterial);
 	//scene.add(tpMesh);
 
+	// ISLAND
 	var islandGeometry = new THREE.SphereBufferGeometry(150, 40, 40, 0, 2*Math.PI, 0, 0.15 * Math.PI);
 	var sandMaterial = new THREE.MeshBasicMaterial({color: 0xcfcea3});
 	islandMesh = new THREE.Mesh(islandGeometry, sandMaterial);
 	islandMesh.position.y = -150 ;
 	scene.add(islandMesh);
 
+	// GLASS CUP
 	var glassGeometry = new THREE.CylinderGeometry(4, 2.5, 10, 40, 40); //true);
 	var whiteMaterial = new THREE.MeshBasicMaterial({color: 0xffffff});
 	glassMesh = new THREE.Mesh(glassGeometry, whiteMaterial);
@@ -104,6 +105,7 @@ function init() {
 	glassMesh.position.z = 30 ;
 	scene.add(glassMesh);
 
+	// METAL CAN
 	var canGeometry = new THREE.CylinderGeometry(6, 6, 10, 40, 40); //true);
 	var greyMaterial = new THREE.MeshBasicMaterial({color: 0x878787});
 	canMesh = new THREE.Mesh(canGeometry, greyMaterial);
@@ -122,7 +124,7 @@ function init() {
 		gltf.scenes[0].children[0].scale.x = .15;
 		gltf.scenes[0].children[0].scale.y = .15;
 		gltf.scenes[0].children[0].scale.z = .15;
-		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0x32a852 });
+		gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({color: 0x000000 });
 		tpMesh = Object.create(gltf.scenes[0].children[0]);
 		console.log(tpMesh);
 	 } 
@@ -175,18 +177,29 @@ function init() {
     	this.k = 0.3;
    		this.length = 180*6;
    		this.R = 70;
-   		this.camera_latitude = 20;
-    	this.camera_longitude = 70;
+   		this.visibility = 1;
+   		this.latitude = 20;
+    	this.longitude = 45;
+    	this.zoom = 4.5;
+    	this.axis_visibility = 1;
     	this.redraw = function() { render(); }
     }
 
-    var gui = new dat.GUI();
-    gui.add(controls, 'length', 180, 34900).onChange(controls.redraw);
-    gui.add(controls, 'R', 20, 150).onChange(controls.redraw);
-    gui.add(controls, 'l', 0, 1).onChange(controls.redraw);
-    gui.add(controls, 'k', 0, 0.99).onChange(controls.redraw);
-    gui.add(controls, 'camera_latitude',  0, 89.9).onChange(controls.redraw); // 180).onChange(controls.redraw);
-    gui.add(controls, 'camera_longitude', -180, 180).onChange(controls.redraw);
+    const datGui  = new dat.GUI({ autoPlace: true });
+    datGui.domElement.id = 'gui';
+
+    var sfolder = datGui.addFolder(`Spirograph`);
+    sfolder.add(controls, 'length', 180, 34900).onChange(controls.redraw);
+    sfolder.add(controls, 'R', 20, 150).onChange(controls.redraw);
+    sfolder.add(controls, 'l', 0, 1).onChange(controls.redraw);
+    sfolder.add(controls, 'k', 0, 0.99).onChange(controls.redraw);
+    sfolder.add(controls, 'visibility', 0,1).onChange(controls.redraw);
+    
+    var cfolder = datGui.addFolder(`Camera`);
+    cfolder.add(controls, 'latitude',  0, 89.9).onChange(controls.redraw); // 180).onChange(controls.redraw);
+    cfolder.add(controls, 'longitude', -180, 180).onChange(controls.redraw);
+    cfolder.add(controls, 'zoom', 1.0, 7.0).onChange(controls.redraw);
+    cfolder.add(controls, 'axis_visibility', 0, 1).onChange(controls.redraw);
 
 	// _____________________________________________________________________ MY CODE _________________________________________________________________________
 
@@ -234,31 +247,47 @@ function render() {
 	scene.add(tp3Mesh);
 	scene.add(horseMesh);
 
-	scene.remove(lineMesh);
+	if (controls.visibility == 0) {
+		scene.remove(lineMesh);
+	} else {
 
-	spirographArray = [];
+		scene.remove(lineMesh);
 
-    for(var theta=0; theta<=length_temp; theta += 1){
-        
-        t = ((Math.PI / 180) * theta);
-     
-       	var tx = R*((1-k_temp)*Math.cos(t) + l_temp*k_temp*Math.cos((t*(1-k_temp))/(k_temp)) );
-		var ty = 40; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
-		var tz = R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
-        
-        spirographArray.push({x: tx , y: ty , z: tz});                               
-    
-    }
-	var lineMat = new THREE.LineBasicMaterial( { color: 'white' } );
-	var lineGeo = new THREE.BufferGeometry().setFromPoints( spirographArray );
-	lineMesh = new THREE.Line( lineGeo, lineMat );
-	scene.add(lineMesh);
+		spirographArray = [];
+
+	    for(var theta=0; theta<=length_temp; theta += 1){
+	        
+	        t = ((Math.PI / 180) * theta);
+	     
+	       	var tx = R*((1-k_temp)*Math.cos(t) + l_temp*k_temp*Math.cos((t*(1-k_temp))/(k_temp)) );
+			var ty = 40; // R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+			var tz = R*((1-k_temp)*Math.sin(t) - l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) ); // R*(l_temp*k_temp*Math.sin((t*(1-k_temp))/(k_temp)) );
+	        
+	        spirographArray.push({x: tx , y: ty , z: tz});                               
+	    
+	    }
+		var lineMat = new THREE.LineBasicMaterial( { color: 'white' } );
+		var lineGeo = new THREE.BufferGeometry().setFromPoints( spirographArray );
+		lineMesh = new THREE.Line( lineGeo, lineMat );
+		scene.add(lineMesh);
+
+	}
+
+	if (controls.axis_visibility == 1){
+		scene.add(axes);
+	} else {
+		scene.remove(axes);
+	}
 
 	renderer.clear();
 
+	//CAMERA ZOOM IN AND ZOOM OUT
+	camera1.position.y = -40 + controls.zoom*80;
+	camera2 = new THREE.PerspectiveCamera( 20*controls.zoom, 0.5 * aspect, 1, 100000 );
+
 	// CAMERA LATITUDE and LONGITUDE
-    var result = camera2Pos(controls.camera_latitude, -controls.camera_longitude);
-    var result2 = camera2Pos(0, -controls.camera_longitude);
+    var result = camera2Pos(controls.latitude, -controls.longitude);
+    var result2 = camera2Pos(0, -controls.longitude);
     camera2.position.x = result[0];
     camera2.position.y = result[1];
     camera2.position.z = result[2];
