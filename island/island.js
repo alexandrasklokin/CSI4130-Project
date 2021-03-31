@@ -5,7 +5,7 @@ Sneha George
 300006801
 
 NOTE: Needs to be run on a server using the command:
-	http-server . -p 8080
+    http-server . -p 8080
 
 */
 
@@ -29,6 +29,8 @@ let cameraRig, camera, camera1, camera2, axes;
 let controls;
 let terrain, perlin, smoothing, peak;
 const frustumSize = 200;
+// custom global variables
+var mirrorSphere, mirrorSphereCamera; // for mirror material
 
 init();
 animate();
@@ -104,11 +106,12 @@ function init() {
     refractionCube.mapping = THREE.CubeRefractionMapping;
 
     //LIGHTING
-    let pointLight;
+
     //lights
     const ambient = new THREE.AmbientLight(0xffffff);
     scene.add(ambient);
 
+    let pointLight;
     pointLight = new THREE.PointLight(0xffffff, 2);
     scene.add(pointLight);
 
@@ -122,16 +125,28 @@ function init() {
         false,
         false
     );
-    var basicColor = new THREE.MeshBasicMaterial({ color: 0xa8329c, });
+    // Create cube render target
+    const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(128, { format: THREE.RGBFormat, generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter });
+    mirrorSphereCamera = new THREE.CubeCamera(1, 100000, cubeRenderTarget);
+    var mirrorSphereMaterial = new THREE.MeshBasicMaterial({ envMap: cubeRenderTarget.texture });
+    mirrorSphere = new THREE.Mesh(tpGeometry, mirrorSphereMaterial);
+    mirrorSphere.position.y = 5;
+    mirrorSphere.position.z = 35;
+
+    scene.add(mirrorSphereCamera);
+    scene.add(mirrorSphere);
+
+    //var basicColor = new THREE.MeshBasicMaterial({ color: 0xa8329c, });
     /* var tpMaterial = new THREE.MeshLambertMaterial({
         color: 0xff6600,
         envMap: scene.background,
         combine: THREE.MixOperation,
         reflectivity: 0.3,
     }); */
-    tp1Mesh = new THREE.Mesh(tpGeometry, basicColor);
-    tp1Mesh.position.y = 100;
-    scene.add(tp1Mesh);
+    /*tp1Mesh = new THREE.Mesh(tpGeometry, basicColor);
+    tp1Mesh.position.y = 5;
+    tp1Mesh.position.z = 35;
+    scene.add(tp1Mesh);*/
 
     // ISLAND
     var islandGeometry = new THREE.SphereBufferGeometry(
@@ -148,12 +163,12 @@ function init() {
     islandMesh.position.y = -150;
     // scene.add(islandMesh);
 
-    islandGeometry = new THREE.PlaneBufferGeometry( 150, 150, 256, 256 );
-    islandMaterial = new THREE.MeshLambertMaterial({color: 0xcfcea3});
-    terrain = new THREE.Mesh( islandGeometry, islandMaterial );
+    islandGeometry = new THREE.PlaneBufferGeometry(150, 150, 256, 256);
+    islandMaterial = new THREE.MeshLambertMaterial({ color: 0xcfcea3 });
+    terrain = new THREE.Mesh(islandGeometry, islandMaterial);
     terrain.rotation.x = -Math.PI / 2;
     terrain.position.y += -10;
-    scene.add( terrain );
+    scene.add(terrain);
 
     peak = 10;
     smoothing = 40;
@@ -172,20 +187,16 @@ function init() {
     });
 
     // GLASS
-    var glassGeometry = new THREE.CylinderGeometry(4, 2.5, 20, 40, 40 ); // true);
+    var glassGeometry = new THREE.CylinderGeometry(4, 2.5, 20, 40, 40); // true);
     glassMesh = new THREE.Mesh(glassGeometry, refraction2Material);
-    glassMesh.position.x = -30;
-    glassMesh.position.y = -2;
-    glassMesh.position.z = 30;
+    glassMesh.position.set(-30, -2, 30);
     scene.add(glassMesh);
 
     // METAL CAN
     var canGeometry = new THREE.CylinderGeometry(6, 6, 20, 40, 40); //true);
     canMesh = new THREE.Mesh(canGeometry, refractionMaterial);
     // canMesh.rotation.z = -Math.pi/4;
-    canMesh.position.x = 30;
-    canMesh.position.y = -1;
-    canMesh.position.z = 30;
+    canMesh.position.set(30, -1, 30);
     scene.add(canMesh);
 
     const loader = new THREE.GLTFLoader();
@@ -234,7 +245,7 @@ function init() {
         gltf.scenes[0].children[0].scale.x = 0.15;
         gltf.scenes[0].children[0].scale.y = 0.15;
         gltf.scenes[0].children[0].scale.z = 0.15;
-        gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({ color: 0x4f230d,});
+        gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({ color: 0x4f230d, });
         /* gltf.scenes[0].children[0].material = new THREE.MeshLambertMaterial({
             color: 0xff6600,
             envMap: scene.background,
@@ -255,12 +266,12 @@ function init() {
         this.longitude = 45;
         this.zoom = 4.5;
         this.axis_visibility = 1;
-        this.peak = 10; 
+        this.peak = 10;
         this.smoothing = 40;
         this.redraw = function() {
             render();
         };
-        this.reTerrain = function(){
+        this.reTerrain = function() {
             peak = controls.peak;
             smoothing = controls.smoothing;
             refreshVertices();
@@ -302,6 +313,15 @@ function init() {
 }
 
 function render() {
+
+    //Mirror teapot
+    mirrorSphere.visible = false;
+    mirrorSphereCamera.position = mirrorSphere.position;
+    //mirrorSphereCamera.updateCubeMap(renderer, scene);
+    mirrorSphereCamera.update(renderer, scene);
+    mirrorSphere.visible = true;
+
+
     // scene.rotation.z += 0.01;
 
     var t = (Math.PI / 180) * Date.now() * 0.03;
@@ -400,9 +420,7 @@ function render() {
     // CAMERA LATITUDE and LONGITUDE
     var result = camera2Pos(controls.latitude, -controls.longitude);
     var result2 = camera2Pos(0, -controls.longitude);
-    camera2.position.x = result[0];
-    camera2.position.y = result[1];
-    camera2.position.z = result[2];
+    camera2.position.set(result[0], result[1], result[2]);
 
     camera1.position.x = result2[0];
     camera1.position.z = result2[2];
@@ -471,9 +489,9 @@ function refreshVertices() {
 
     var myVertices = terrain.geometry.attributes.position.array;
     for (var i = 0; i <= myVertices.length; i += 3) {
-        myVertices[i+2] = peak * perlin.noise(
-            (terrain.position.x + myVertices[i])/smoothing, 
-            (terrain.position.z + myVertices[i+1])/smoothing
+        myVertices[i + 2] = peak * perlin.noise(
+            (terrain.position.x + myVertices[i]) / smoothing,
+            (terrain.position.z + myVertices[i + 1]) / smoothing
         );
     }
     terrain.geometry.attributes.position.needsUpdate = true;

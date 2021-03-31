@@ -28,3 +28,9 @@ CubeMap:
 Perlin Noise:
 	https://gist.github.com/banksean/304522#file-perlin-noise-simplex-js
 	https://github.com/stephanbaker/PerlinTerrain
+
+CubeCamera: 
+	https://threejs.org/docs/#api/en/cameras/CubeCamera
+
+Mirror Teapot: 
+	https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/Reflection.html
