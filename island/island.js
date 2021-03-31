@@ -17,6 +17,7 @@ let container;
 let scene,
     renderer,
     tpMesh,
+    tp1Mesh,
     tp2Mesh,
     tp3Mesh,
     horseMesh,
@@ -121,17 +122,16 @@ function init() {
         false,
         false
     );
-    var tpMaterial = new THREE.MeshLambertMaterial({
+    var basicColor = new THREE.MeshBasicMaterial({ color: 0xa8329c, });
+    /* var tpMaterial = new THREE.MeshLambertMaterial({
         color: 0xff6600,
         envMap: scene.background,
         combine: THREE.MixOperation,
         reflectivity: 0.3,
-    });
-    tpMesh = new THREE.Mesh(tpGeometry, tpMaterial);
-    tpMesh.position.x = 60;
-    tpMesh.position.y = -1;
-    tpMesh.position.z = 30;
-    scene.add(tpMesh);
+    }); */
+    tp1Mesh = new THREE.Mesh(tpGeometry, basicColor);
+    tp1Mesh.position.y = 100;
+    scene.add(tp1Mesh);
 
     // ISLAND
     var islandGeometry = new THREE.SphereBufferGeometry(
