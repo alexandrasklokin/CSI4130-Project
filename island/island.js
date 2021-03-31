@@ -26,6 +26,7 @@ let scene,
     spirographArray;
 let cameraRig, camera, camera1, camera2, axes;
 let controls;
+let terrain, perlin, smoothing, peak;
 const frustumSize = 200;
 
 init();
@@ -145,29 +146,42 @@ function init() {
     var sandMaterial = new THREE.MeshBasicMaterial({ color: 0xcfcea3 });
     islandMesh = new THREE.Mesh(islandGeometry, sandMaterial);
     islandMesh.position.y = -150;
-    scene.add(islandMesh);
+    // scene.add(islandMesh);
 
-    // GLASS CUP
-    var glassGeometry = new THREE.CylinderGeometry(4, 2.5, 10, 40, 40); //true);
-    //var whiteMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    var whiteMaterial = new THREE.MeshLambertMaterial({
-        color: 0xffee00,
+    islandGeometry = new THREE.PlaneBufferGeometry( 150, 150, 256, 256 );
+    islandMaterial = new THREE.MeshLambertMaterial({color: 0xcfcea3});
+    terrain = new THREE.Mesh( islandGeometry, islandMaterial );
+    terrain.rotation.x = -Math.PI / 2;
+    terrain.position.y += -10;
+    scene.add( terrain );
+
+    peak = 10;
+    smoothing = 40;
+    refreshVertices();
+
+    // Reflection Refractive Materials
+    var refractionMaterial = new THREE.MeshLambertMaterial({
+        color: 0x4f6482, // ffee00,
         envMap: refractionCube,
-        refractionRatio: 0.95,
+        refractionRatio: 0.80,
     });
-    glassMesh = new THREE.Mesh(glassGeometry, whiteMaterial);
+    var refraction2Material = new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        envMap: scene.background,
+        refractionRatio: 0.9,
+    });
+
+    // GLASS
+    var glassGeometry = new THREE.CylinderGeometry(4, 2.5, 20, 40, 40 ); // true);
+    glassMesh = new THREE.Mesh(glassGeometry, refraction2Material);
     glassMesh.position.x = -30;
     glassMesh.position.y = -2;
     glassMesh.position.z = 30;
     scene.add(glassMesh);
 
     // METAL CAN
-    var canGeometry = new THREE.CylinderGeometry(6, 6, 10, 40, 40); //true);
-    var greyMaterial = new THREE.MeshLambertMaterial({
-        color: 0xffffff,
-        envMap: scene.background,
-    });
-    canMesh = new THREE.Mesh(canGeometry, greyMaterial);
+    var canGeometry = new THREE.CylinderGeometry(6, 6, 20, 40, 40); //true);
+    canMesh = new THREE.Mesh(canGeometry, refractionMaterial);
     // canMesh.rotation.z = -Math.pi/4;
     canMesh.position.x = 30;
     canMesh.position.y = -1;
@@ -185,7 +199,7 @@ function init() {
             color: 0x32a852,
         });
         tpMesh = Object.create(gltf.scenes[0].children[0]);
-        console.log(tpMesh);
+        // console.log(tpMesh);
     });
 
     loader.load("Parrot.glb", function(gltf) {
@@ -200,7 +214,7 @@ function init() {
             color: 0xa86032,
         });
         tp2Mesh = Object.create(gltf.scenes[0].children[0]);
-        console.log(tp2Mesh);
+        // console.log(tp2Mesh);
     });
 
     loader.load("Flamingo.glb", function(gltf) {
@@ -212,7 +226,7 @@ function init() {
             color: 0xa8329c,
         });
         tp3Mesh = Object.create(gltf.scenes[0].children[0]);
-        console.log(tp3Mesh);
+        // console.log(tp3Mesh);
     });
 
     loader.load("Horse.glb", function(gltf) {
@@ -220,13 +234,13 @@ function init() {
         gltf.scenes[0].children[0].scale.x = 0.15;
         gltf.scenes[0].children[0].scale.y = 0.15;
         gltf.scenes[0].children[0].scale.z = 0.15;
-        //gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({ color: 0x000000,});
-        gltf.scenes[0].children[0].material = new THREE.MeshLambertMaterial({
+        gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({ color: 0x4f230d,});
+        /* gltf.scenes[0].children[0].material = new THREE.MeshLambertMaterial({
             color: 0xff6600,
             envMap: scene.background,
             combine: THREE.MixOperation,
             reflectivity: 0.3,
-        });
+        }); */
         horseMesh = Object.create(gltf.scenes[0].children[0]);
         console.log(horseMesh);
     });
@@ -241,9 +255,17 @@ function init() {
         this.longitude = 45;
         this.zoom = 4.5;
         this.axis_visibility = 1;
+        this.peak = 10; 
+        this.smoothing = 40;
         this.redraw = function() {
             render();
         };
+        this.reTerrain = function(){
+            peak = controls.peak;
+            smoothing = controls.smoothing;
+            refreshVertices();
+            render();
+        }
     })();
 
     const datGui = new dat.GUI({ autoPlace: true });
@@ -262,6 +284,10 @@ function init() {
     cfolder.add(controls, "zoom", 1.0, 7.0).onChange(controls.redraw);
     cfolder.add(controls, "axis_visibility", 0, 1).onChange(controls.redraw);
 
+    var ptfolder = datGui.addFolder(`Perlin Terrain`);
+    ptfolder.add(controls, "peak", 0, 60).onChange(controls.reTerrain);
+    ptfolder.add(controls, "smoothing", 0.1, 100).onChange(controls.reTerrain);
+
     // _____________________________________________________________________ MY CODE _________________________________________________________________________
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -276,6 +302,8 @@ function init() {
 }
 
 function render() {
+    // scene.rotation.z += 0.01;
+
     var t = (Math.PI / 180) * Date.now() * 0.03;
     var t2 = (Math.PI / 180) * Date.now() * 0.05;
     var t3 = (Math.PI / 180) * Date.now() * 0.04;
@@ -324,7 +352,7 @@ function render() {
     scene.add(tp3Mesh);
     scene.add(horseMesh);
 
-    if (controls.visibility == 0) {
+    if (controls.visibility <= 0.5) {
         scene.remove(lineMesh);
     } else {
         scene.remove(lineMesh);
@@ -352,7 +380,7 @@ function render() {
         scene.add(lineMesh);
     }
 
-    if (controls.axis_visibility == 1) {
+    if (controls.axis_visibility >= 0.5) {
         scene.add(axes);
     } else {
         scene.remove(axes);
@@ -438,16 +466,16 @@ function animate() {
     render();
 }
 
-/* Sources:
+function refreshVertices() {
+    perlin = new Perlin();
 
-Spirograph 3D Shape:
-https://fractalformulas.wordpress.com/flame-variations/spirograph3d/
-
-Stork Mesh:
-https://github.com/mrdoob/three.js/blob/master/examples/models/gltf/Stork.glb
-
-Two ViewPorts:
-https://github.com/mrdoob/three.js/blob/master/examples/webgl_camera.html
-
-
-*/
+    var myVertices = terrain.geometry.attributes.position.array;
+    for (var i = 0; i <= myVertices.length; i += 3) {
+        myVertices[i+2] = peak * perlin.noise(
+            (terrain.position.x + myVertices[i])/smoothing, 
+            (terrain.position.z + myVertices[i+1])/smoothing
+        );
+    }
+    terrain.geometry.attributes.position.needsUpdate = true;
+    terrain.geometry.computeVertexNormals();
+}

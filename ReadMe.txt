@@ -14,13 +14,17 @@ Needs to be run on a server using the command:
 _____Sources_____________________________________________________________________________
 
 Spirograph 3D Shape: 
-https://fractalformulas.wordpress.com/flame-variations/spirograph3d/
+	https://fractalformulas.wordpress.com/flame-variations/spirograph3d/
 
 Animal Meshes:
-https://github.com/mrdoob/three.js/blob/master/examples/models/gltf/
+	https://github.com/mrdoob/three.js/blob/master/examples/models/gltf/
 
 Two ViewPorts:
-https://github.com/mrdoob/three.js/blob/master/examples/webgl_camera.html
+	https://github.com/mrdoob/three.js/blob/master/examples/webgl_camera.html
 
 CubeMap:
-https://opengameart.org/content/beach-skyboxes
+	https://opengameart.org/content/beach-skyboxes
+
+Perlin Noise:
+	https://gist.github.com/banksean/304522#file-perlin-noise-simplex-js
+	https://github.com/stephanbaker/PerlinTerrain
