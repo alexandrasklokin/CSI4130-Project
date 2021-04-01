@@ -135,6 +135,7 @@ function init() {
 
     scene.add(mirrorSphereCamera);
     scene.add(mirrorSphere);
+    // LINE 307 RESPONSIBLE FOR CREATING INITIAL MIRROR, USING refreshMirror()
 
     //var basicColor = new THREE.MeshBasicMaterial({ color: 0xa8329c, });
     /* var tpMaterial = new THREE.MeshLambertMaterial({
@@ -274,6 +275,7 @@ function init() {
         this.reTerrain = function() {
             peak = controls.peak;
             smoothing = controls.smoothing;
+            refreshMirror();
             refreshVertices();
             render();
         }
@@ -306,7 +308,6 @@ function init() {
     renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     container.appendChild(renderer.domElement);
     renderer.outputEncoding = THREE.sRGBEncoding;
-
     renderer.autoClear = false;
 
     window.addEventListener("resize", onWindowResize);
@@ -314,16 +315,7 @@ function init() {
 
 function render() {
 
-    //Mirror teapot
-    var time = Date.now();
-
-    if (time%40==0) {
-        mirrorSphere.visible = false;
-        mirrorSphereCamera.position = mirrorSphere.position;
-        //mirrorSphereCamera.updateCubeMap(renderer, scene);
-        mirrorSphereCamera.update(renderer, scene);
-        mirrorSphere.visible = true;
-    }
+    refreshMirror(Date.now());
 
     // scene.rotation.z += 0.01;
 
@@ -499,4 +491,14 @@ function refreshVertices() {
     }
     terrain.geometry.attributes.position.needsUpdate = true;
     terrain.geometry.computeVertexNormals();
+}
+
+function refreshMirror(time) {
+    if (time%100==0) {
+        mirrorSphere.visible = false;
+        mirrorSphereCamera.position = mirrorSphere.position;
+        //mirrorSphereCamera.updateCubeMap(renderer, scene);
+        mirrorSphereCamera.update(renderer, scene);
+        mirrorSphere.visible = true;        
+    }
 }
