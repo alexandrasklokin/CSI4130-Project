@@ -117,7 +117,7 @@ function init() {
 
     // TEAPOT
     var tpGeometry = new THREE.TeapotGeometry(
-        3,
+        10,
         3,
         true,
         true,
@@ -315,12 +315,15 @@ function init() {
 function render() {
 
     //Mirror teapot
-    mirrorSphere.visible = false;
-    mirrorSphereCamera.position = mirrorSphere.position;
-    //mirrorSphereCamera.updateCubeMap(renderer, scene);
-    mirrorSphereCamera.update(renderer, scene);
-    mirrorSphere.visible = true;
+    var time = Date.now();
 
+    if (time%40==0) {
+        mirrorSphere.visible = false;
+        mirrorSphereCamera.position = mirrorSphere.position;
+        //mirrorSphereCamera.updateCubeMap(renderer, scene);
+        mirrorSphereCamera.update(renderer, scene);
+        mirrorSphere.visible = true;
+    }
 
     // scene.rotation.z += 0.01;
 
