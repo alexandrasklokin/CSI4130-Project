@@ -34,3 +34,4 @@ CubeCamera:
 
 Mirror Teapot: 
 	https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/Reflection.html
+	https://threejs.org/examples/#webgl_materials_cubemap
