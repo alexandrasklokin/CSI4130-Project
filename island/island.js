@@ -593,6 +593,7 @@ function newBackground(letter) {
         "negz.jpg",
     ]);
 
+    refreshCups();
     refreshMirror(100);
     render();
 }
@@ -602,5 +603,39 @@ function setChecked( prop ){
     parameters[param] = false;
   }
   parameters[prop] = true;
+}
+
+function refreshCups(){
+
+  const refractionCube = scene.background;
+  refractionCube.mapping = THREE.CubeRefractionMapping;
+
+      // Reflection Refractive Materials
+  var refractionMaterial = new THREE.MeshLambertMaterial({
+    color: 0x4f6482, // ffee00,
+    envMap: refractionCube,
+    refractionRatio: 0.8,
+  });
+  var refraction2Material = new THREE.MeshLambertMaterial({
+    color: 0xffffff,
+    envMap: scene.background,
+    refractionRatio: 0.9,
+  });
+
+  // GLASS
+  scene.remove(glassMesh);
+  var glassGeometry = new THREE.CylinderGeometry(8, 5, 30, 40, 40); // true);
+  glassMesh = new THREE.Mesh(glassGeometry, refraction2Material);
+  glassMesh.position.set(-40, -2, 0);
+  scene.add(glassMesh);
+
+  // METAL CAN
+  scene.remove(canMesh);
+  // var canGeometry = new THREE.CylinderGeometry(8, 8, 30, 40, 40); //true);
+  canMesh = new THREE.Mesh(glassGeometry, refractionMaterial);
+  // canMesh.rotation.z = -Math.pi/4;
+  canMesh.position.set(40, -1, 0);
+  scene.add(canMesh);
+
 }
 
