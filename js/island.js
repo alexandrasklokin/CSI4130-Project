@@ -54,7 +54,7 @@ function init() {
   camera1 = new THREE.PerspectiveCamera(50, 0.5 * aspect, 1, 100000);
 
   //
-  camera2 = new THREE.PerspectiveCamera(130, 0.5 * aspect, 1, 100000);
+  camera2 = new THREE.PerspectiveCamera(75, 0.5 * aspect, 1, 100000);
 
   cameraRig = new THREE.Group();
 
@@ -341,8 +341,8 @@ parameters = {
   bfolder.add(parameters, 'a').name('Nissi Beach').listen().onChange(function(){setChecked('a'); newBackground('a')});
   bfolder.add(parameters, 'b').name('Nissi Beach 2').listen().onChange(function(){setChecked('b'); newBackground('b')});
   bfolder.add(parameters, 'c').name('Larnaca Beach').listen().onChange(function(){setChecked('c'); newBackground('c')});
-   bfolder.add(parameters, 'd').name('Bridge').listen().onChange(function(){setChecked('d'); newBackground('d')});
-    bfolder.add(parameters, 'e').name('San Francisco').listen().onChange(function(){setChecked('e'); newBackground('e')});
+  bfolder.add(parameters, 'd').name('Bridge').listen().onChange(function(){setChecked('d'); newBackground('d')});
+  bfolder.add(parameters, 'e').name('San Francisco').listen().onChange(function(){setChecked('e'); newBackground('e')});
 
   // _____________________________________________________________________ RENDERER _________________________________________________________________________
 
