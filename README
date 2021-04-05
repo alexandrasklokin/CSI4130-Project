@@ -22,8 +22,9 @@ Animal Meshes:
 Two ViewPorts:
 	https://github.com/mrdoob/three.js/blob/master/examples/webgl_camera.html
 
-CubeMap:
+Skybox:
 	https://opengameart.org/content/beach-skyboxes
+	https://www.humus.name/index.php?page=Textures&start=88
 
 Perlin Noise:
 	https://gist.github.com/banksean/304522#file-perlin-noise-simplex-js

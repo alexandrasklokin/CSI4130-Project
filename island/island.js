@@ -18,7 +18,7 @@ let scene, renderer;
 let tpMesh, tp1Mesh, tp2Mesh, tp3Mesh, lineMesh; //horseMesh
 let radius, R, spirographArray;
 let cameraRig, camera, camera1, camera2, axes;
-let controls;
+let controls, parameters;
 let terrain, perlin, smoothing, peak;
 let sound, listener;
 let mirrorSphere, mirrorSphereCamera; // for mirror material
@@ -88,7 +88,7 @@ function init() {
 // _____________________________________________________________________ SCENE BACKGROUND _________________________________________________________________________
 
   scene.background = new THREE.CubeTextureLoader()
-    .setPath("../beach-skyboxes/LarnacaBeach/")
+    .setPath("../skyboxes/NissiBeach/")
     .load([
       "posx.jpg",
       "negx.jpg",
@@ -277,6 +277,15 @@ function init() {
 
 // _____________________________________________________________________ DAT GUI _________________________________________________________________________
 
+parameters = {
+  a: true,
+  b: false,
+  c: false,
+  d: false,
+  e: false,
+  f: false
+}
+
   controls = new (function () {
     this.l = 0.9;
     this.k = 0.3;
@@ -328,6 +337,12 @@ function init() {
   var mfolder = datGui.addFolder(`Audio`);
   mfolder.add(controls, "music", 0, 1).onChange(controls.playMusic);
 
+  var bfolder = datGui.addFolder(`Skybox`);
+  bfolder.add(parameters, 'a').name('Nissi Beach').listen().onChange(function(){setChecked('a'); newBackground('a')});
+  bfolder.add(parameters, 'b').name('Nissi Beach 2').listen().onChange(function(){setChecked('b'); newBackground('b')});
+  bfolder.add(parameters, 'c').name('Larnaca Beach').listen().onChange(function(){setChecked('c'); newBackground('c')});
+   bfolder.add(parameters, 'd').name('Bridge').listen().onChange(function(){setChecked('d'); newBackground('d')});
+    bfolder.add(parameters, 'e').name('San Francisco').listen().onChange(function(){setChecked('e'); newBackground('e')});
 
   // _____________________________________________________________________ RENDERER _________________________________________________________________________
 
@@ -549,3 +564,43 @@ function play(){
         sound.stop();
     }
 }
+
+// _____________________________________________________________________ SKYBOX _________________________________________________________________________
+
+function newBackground(letter) {
+    var path; 
+
+    if (letter=='a'){
+        path = "../skyboxes/NissiBeach/"
+    } else if (letter=='b'){
+        path = "../skyboxes/NissiBeach2/"
+    } else if (letter=='c') {
+        path = "../skyboxes/LarnacaBeach/"
+    } else if (letter=='d'){
+        path = "../skyboxes/Bridge/"
+    } else if (letter=='e') {
+        path = "../skyboxes/SanFrancisco3/"
+    }
+
+    scene.background = new THREE.CubeTextureLoader()
+        .setPath(path)
+        .load([
+        "posx.jpg",
+        "negx.jpg",
+        "posy.jpg",
+        "negy.jpg",
+        "posz.jpg",
+        "negz.jpg",
+    ]);
+
+    refreshMirror(100);
+    render();
+}
+
+function setChecked( prop ){
+  for (let param in parameters){
+    parameters[param] = false;
+  }
+  parameters[prop] = true;
+}
+
