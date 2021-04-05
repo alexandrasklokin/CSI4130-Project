@@ -14,28 +14,23 @@ let SCREEN_HEIGHT = window.innerHeight;
 let aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
 
 let container;
-let scene,
-  renderer,
-  tpMesh,
-  tp1Mesh,
-  tp2Mesh,
-  tp3Mesh,
-  //horseMesh,
-  lineMesh,
-  radius,
-  R,
-  spirographArray;
+let scene, renderer; 
+let tpMesh, tp1Mesh, tp2Mesh, tp3Mesh, lineMesh; //horseMesh
+let radius, R, spirographArray;
 let cameraRig, camera, camera1, camera2, axes;
 let controls;
 let terrain, perlin, smoothing, peak;
+let sound, listener;
+let mirrorSphere, mirrorSphereCamera; // for mirror material
 const frustumSize = 200;
-// custom global variables
-var mirrorSphere, mirrorSphereCamera; // for mirror material
+
 
 init();
 animate();
 
 function init() {
+
+// _____________________________________________________________________ SCENE _________________________________________________________________________
   container = document.createElement("div");
   document.body.appendChild(container);
 
@@ -44,7 +39,7 @@ function init() {
   axes = new THREE.AxesHelper(40);
   scene.add(axes);
 
-  //
+// _____________________________________________________________________ CAMERAS _________________________________________________________________________
 
   camera = new THREE.OrthographicCamera(
     frustumSize / -2,
@@ -71,7 +66,7 @@ function init() {
 
   scene.add(cameraRig);
 
-  //
+// _____________________________________________________________________ SPRIROGRAPH LINE _________________________________________________________________________
 
   const geometry = new THREE.BufferGeometry();
   const vertices = [];
@@ -90,7 +85,7 @@ function init() {
   // const particles = new THREE.Points( geometry, new THREE.PointsMaterial( { color: 0x888888 } ) );
   // scene.add( particles );
 
-  // _____________________________________________________________________ MY CODE _________________________________________________________________________
+// _____________________________________________________________________ SCENE BACKGROUND _________________________________________________________________________
 
   scene.background = new THREE.CubeTextureLoader()
     .setPath("../beach-skyboxes/LarnacaBeach/")
@@ -102,6 +97,9 @@ function init() {
       "posz.jpg",
       "negz.jpg",
     ]);
+
+// _____________________________________________________________________ REFRACTION CUPS, MIRROR TEAPOT, AND LIGHT _________________________________________________________________________
+
   const refractionCube = scene.background;
   refractionCube.mapping = THREE.CubeRefractionMapping;
 
@@ -125,6 +123,7 @@ function init() {
     false,
     false
   );
+
   // Create cube render target
   const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(128, {
     format: THREE.RGBFormat,
@@ -155,7 +154,49 @@ function init() {
     tp1Mesh.position.z = 35;
     scene.add(tp1Mesh);*/
 
-  // ISLAND
+      // Reflection Refractive Materials
+  var refractionMaterial = new THREE.MeshLambertMaterial({
+    color: 0x4f6482, // ffee00,
+    envMap: refractionCube,
+    refractionRatio: 0.8,
+  });
+  var refraction2Material = new THREE.MeshLambertMaterial({
+    color: 0xffffff,
+    envMap: scene.background,
+    refractionRatio: 0.9,
+  });
+
+  // GLASS
+  var glassGeometry = new THREE.CylinderGeometry(8, 5, 30, 40, 40); // true);
+  glassMesh = new THREE.Mesh(glassGeometry, refraction2Material);
+  glassMesh.position.set(-40, -2, 0);
+  scene.add(glassMesh);
+
+  // METAL CAN
+  // var canGeometry = new THREE.CylinderGeometry(8, 8, 30, 40, 40); //true);
+  canMesh = new THREE.Mesh(glassGeometry, refractionMaterial);
+  // canMesh.rotation.z = -Math.pi/4;
+  canMesh.position.set(40, -1, 0);
+  scene.add(canMesh);
+
+    /*loader.load("Horse.glb", function(gltf) {
+        console.log(gltf);
+        gltf.scenes[0].children[0].scale.x = 0.15;
+        gltf.scenes[0].children[0].scale.y = 0.15;
+        gltf.scenes[0].children[0].scale.z = 0.15;
+        gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({ color: 0x4f230d, });*/
+  /* gltf.scenes[0].children[0].material = new THREE.MeshLambertMaterial({
+            color: 0xff6600,
+            envMap: scene.background,
+            combine: THREE.MixOperation,
+            reflectivity: 0.3,
+        }); */
+  /*horseMesh = Object.create(gltf.scenes[0].children[0]);
+        console.log(horseMesh);
+    }); 
+    */
+
+// _____________________________________________________________________ ISLAND TERRAIN _________________________________________________________________________
   var islandGeometry = new THREE.SphereBufferGeometry(
     150,
     40,
@@ -181,35 +222,13 @@ function init() {
   smoothing = 40;
   refreshVertices();
 
-  // Reflection Refractive Materials
-  var refractionMaterial = new THREE.MeshLambertMaterial({
-    color: 0x4f6482, // ffee00,
-    envMap: refractionCube,
-    refractionRatio: 0.8,
-  });
-  var refraction2Material = new THREE.MeshLambertMaterial({
-    color: 0xffffff,
-    envMap: scene.background,
-    refractionRatio: 0.9,
-  });
-
-  // GLASS
-  var glassGeometry = new THREE.CylinderGeometry(8, 5, 30, 40, 40); // true);
-  glassMesh = new THREE.Mesh(glassGeometry, refraction2Material);
-  glassMesh.position.set(-40, -2, 0);
-  scene.add(glassMesh);
-
-  // METAL CAN
-  var canGeometry = new THREE.CylinderGeometry(8, 8, 30, 40, 40); //true);
-  canMesh = new THREE.Mesh(canGeometry, refractionMaterial);
-  // canMesh.rotation.z = -Math.pi/4;
-  canMesh.position.set(40, -1, 0);
-  scene.add(canMesh);
+// _____________________________________________________________________ BIRDS _________________________________________________________________________
 
   const loader = new THREE.GLTFLoader();
 
+
   loader.load("Stork.glb", function (gltf) {
-    console.log(gltf);
+    //console.log(gltf);
     gltf.scenes[0].children[0].scale.x = 0.15;
     gltf.scenes[0].children[0].scale.y = 0.15;
     gltf.scenes[0].children[0].scale.z = 0.15;
@@ -221,10 +240,7 @@ function init() {
   });
 
   loader.load("Parrot.glb", function (gltf) {
-    console.log(gltf);
-    //gltf.scene.scale.x = .2;
-    //gltf.scene.scale.y = .2;
-    //gltf.scene.scale.z = .2;
+    //console.log(gltf);
     gltf.scenes[0].children[0].scale.x = 0.15;
     gltf.scenes[0].children[0].scale.y = 0.15;
     gltf.scenes[0].children[0].scale.z = 0.15;
@@ -236,7 +252,7 @@ function init() {
   });
 
   loader.load("Flamingo.glb", function (gltf) {
-    console.log(gltf);
+    //console.log(gltf);
     gltf.scenes[0].children[0].scale.x = 0.15;
     gltf.scenes[0].children[0].scale.y = 0.15;
     gltf.scenes[0].children[0].scale.z = 0.15;
@@ -247,22 +263,19 @@ function init() {
     // console.log(tp3Mesh);
   });
 
-  /*loader.load("Horse.glb", function(gltf) {
-        console.log(gltf);
-        gltf.scenes[0].children[0].scale.x = 0.15;
-        gltf.scenes[0].children[0].scale.y = 0.15;
-        gltf.scenes[0].children[0].scale.z = 0.15;
-        gltf.scenes[0].children[0].material = new THREE.MeshBasicMaterial({ color: 0x4f230d, });*/
-  /* gltf.scenes[0].children[0].material = new THREE.MeshLambertMaterial({
-            color: 0xff6600,
-            envMap: scene.background,
-            combine: THREE.MixOperation,
-            reflectivity: 0.3,
-        }); */
-  /*horseMesh = Object.create(gltf.scenes[0].children[0]);
-        console.log(horseMesh);
-    }); 
-    */
+// _____________________________________________________________________ SOUND _________________________________________________________________________
+
+  listener = new THREE.AudioListener();
+  camera.add( listener );
+  sound = new THREE.Audio( listener );
+  var audioLoader = new THREE.AudioLoader();
+    audioLoader.load("theelevatorbossanova.mp3", function( buffer ) {
+        sound.setBuffer( buffer );
+        sound.setLoop(true);
+        sound.setVolume(0.5);
+    });
+
+// _____________________________________________________________________ DAT GUI _________________________________________________________________________
 
   controls = new (function () {
     this.l = 0.9;
@@ -276,6 +289,7 @@ function init() {
     this.axis_visibility = 1;
     this.peak = 10;
     this.smoothing = 40;
+    this.music = 0;
     this.redraw = function () {
       render();
     };
@@ -286,6 +300,9 @@ function init() {
       refreshVertices();
       render();
     };
+    this.playMusic = function() {
+        play();
+    }
   })();
 
   const datGui = new dat.GUI({ autoPlace: true });
@@ -308,7 +325,11 @@ function init() {
   ptfolder.add(controls, "peak", 0, 60).onChange(controls.reTerrain);
   ptfolder.add(controls, "smoothing", 0.1, 100).onChange(controls.reTerrain);
 
-  // _____________________________________________________________________ MY CODE _________________________________________________________________________
+  var mfolder = datGui.addFolder(`Audio`);
+  mfolder.add(controls, "music", 0, 1).onChange(controls.playMusic);
+
+
+  // _____________________________________________________________________ RENDERER _________________________________________________________________________
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -321,9 +342,12 @@ function init() {
 }
 
 function render() {
+  
   refreshMirror(Date.now());
 
   // scene.rotation.z += 0.01;
+
+// _____________________________________________________________________ SPIROGRAPH AND BIRDS _________________________________________________________________________
 
   var t = (Math.PI / 180) * Date.now() * 0.03;
   var t2 = (Math.PI / 180) * Date.now() * 0.05;
@@ -401,6 +425,8 @@ function render() {
     scene.add(lineMesh);
   }
 
+// _____________________________________________________________________ AXIS AND CAMERA _________________________________________________________________________
+
   if (controls.axis_visibility >= 0.5) {
     scene.add(axes);
   } else {
@@ -440,19 +466,6 @@ function render() {
   //renderer.render( scene, camera );
 }
 
-function camera2Pos(latitude, longtitude) {
-  var radius = 75;
-
-  var alpha = (90 - latitude) * (Math.PI / 180);
-  var beta = (longtitude + 180) * (Math.PI / 180);
-
-  x = -(radius * Math.sin(alpha) * Math.cos(beta));
-  z = radius * Math.sin(alpha) * Math.sin(beta);
-  y = radius * Math.cos(alpha);
-
-  return [x, y, z];
-}
-
 function onKeyDown(event) {}
 
 //
@@ -485,6 +498,21 @@ function animate() {
   render();
 }
 
+// _____________________________________________________________________ CAMERA POSITION _________________________________________________________________________
+function camera2Pos(latitude, longtitude) {
+  var radius = 75;
+
+  var alpha = (90 - latitude) * (Math.PI / 180);
+  var beta = (longtitude + 180) * (Math.PI / 180);
+
+  x = -(radius * Math.sin(alpha) * Math.cos(beta));
+  z = radius * Math.sin(alpha) * Math.sin(beta);
+  y = radius * Math.cos(alpha);
+
+  return [x, y, z];
+}
+
+// _____________________________________________________________________ TERRAIN PERLIN NOISE _________________________________________________________________________
 function refreshVertices() {
   perlin = new Perlin();
 
@@ -501,6 +529,7 @@ function refreshVertices() {
   terrain.geometry.computeVertexNormals();
 }
 
+// _____________________________________________________________________ MIRROR RENDERING _________________________________________________________________________
 function refreshMirror(time) {
   if (time % 100 == 0) {
     mirrorSphere.visible = false;
@@ -509,4 +538,14 @@ function refreshMirror(time) {
     mirrorSphereCamera.update(renderer, scene);
     mirrorSphere.visible = true;
   }
+}
+
+// _____________________________________________________________________ AUDIO SOUND _________________________________________________________________________
+function play(){
+
+    if (controls.music >=0.5) {
+        sound.play();
+    } else {
+        sound.stop();
+    }
 }
