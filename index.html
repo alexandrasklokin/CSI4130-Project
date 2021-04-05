@@ -43,27 +43,34 @@
             margin: 0;
             overflow: hidden;
         }
+        #info {
+            color: black;/*#fff;*/
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            display:block;
+        }
     </style>
 </head>
-  <body>	
-    <!-- Three.js API -->
-    <script type="text/javascript" src="../node_modules/three/build/three.js"></script>
-    <!-- Checking WebGL version example in Three.js -->
-    <script type="text/javascript" src="../node_modules/three/examples/js/WebGL.js"></script>
-    <script type="text/javascript" src="../node_modules/three/examples/js/geometries/TeapotGeometry.js"></script>
-    <script type="text/javascript" src="../node_modules/three/examples/js/loaders/GLTFLoader.js"></script>
-    <script type="text/javascript" src="../node_modules/three-legacyjsonloader/index.js"></script>
-    <!-- dat.gui for simple ui -->
-    <script type="text/javascript" src="../node_modules/dat.gui/build/dat.gui.js"></script>
-    <!-- js Code -->
-    <script src="Perlin.js"></script> 
-    <script src="island.js"></script> 
+  <body>  
 
     <div id="info">
-      <a href="https://github.com/alexandrasklokin/CSI4130-Project" target="_blank" rel="noopener"><b>High Tea at Sea</a></b></a>
-
-      <br><br><b>Created by Sneha George 300006801, Alexandra Sklokin 300010511</b><br>
+      <a href="https://github.com/alexandrasklokin/CSI4130-Project" target="_blank" rel="noopener"><b>High Tea at Sea</a>, by Sneha George 300006801, Alexandra Sklokin 300010511 (CSI4130) </b></a>
     </div>
+
+    <!-- Three.js API -->
+    <script type="text/javascript" src="node_modules/three/build/three.js"></script>
+    <!-- Checking WebGL version example in Three.js -->
+    <script type="text/javascript" src="node_modules/three/examples/js/WebGL.js"></script>
+    <script type="text/javascript" src="node_modules/three/examples/js/geometries/TeapotGeometry.js"></script>
+    <script type="text/javascript" src="node_modules/three/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- dat.gui for simple ui -->
+    <script type="text/javascript" src="node_modules/dat.gui/build/dat.gui.js"></script>
+    <!-- js Code -->
+    <script src="js/Perlin.js"></script> 
+    <script src="js/island.js"></script> 
 
   </body>
 </html>

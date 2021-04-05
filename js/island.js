@@ -88,7 +88,7 @@ function init() {
 // _____________________________________________________________________ SCENE BACKGROUND _________________________________________________________________________
 
   scene.background = new THREE.CubeTextureLoader()
-    .setPath("../skyboxes/NissiBeach/")
+    .setPath("skyboxes/NissiBeach/")
     .load([
       "posx.jpg",
       "negx.jpg",
@@ -227,7 +227,7 @@ function init() {
   const loader = new THREE.GLTFLoader();
 
 
-  loader.load("Stork.glb", function (gltf) {
+  loader.load("meshes/Stork.glb", function (gltf) {
     //console.log(gltf);
     gltf.scenes[0].children[0].scale.x = 0.15;
     gltf.scenes[0].children[0].scale.y = 0.15;
@@ -239,7 +239,7 @@ function init() {
     // console.log(tpMesh);
   });
 
-  loader.load("Parrot.glb", function (gltf) {
+  loader.load("meshes/Parrot.glb", function (gltf) {
     //console.log(gltf);
     gltf.scenes[0].children[0].scale.x = 0.15;
     gltf.scenes[0].children[0].scale.y = 0.15;
@@ -251,7 +251,7 @@ function init() {
     // console.log(tp2Mesh);
   });
 
-  loader.load("Flamingo.glb", function (gltf) {
+  loader.load("meshes/Flamingo.glb", function (gltf) {
     //console.log(gltf);
     gltf.scenes[0].children[0].scale.x = 0.15;
     gltf.scenes[0].children[0].scale.y = 0.15;
@@ -269,7 +269,7 @@ function init() {
   camera.add( listener );
   sound = new THREE.Audio( listener );
   var audioLoader = new THREE.AudioLoader();
-    audioLoader.load("theelevatorbossanova.mp3", function( buffer ) {
+    audioLoader.load("music/theelevatorbossanova.mp3", function( buffer ) {
         sound.setBuffer( buffer );
         sound.setLoop(true);
         sound.setVolume(0.5);
@@ -571,15 +571,15 @@ function newBackground(letter) {
     var path; 
 
     if (letter=='a'){
-        path = "../skyboxes/NissiBeach/"
+        path = "skyboxes/NissiBeach/"
     } else if (letter=='b'){
-        path = "../skyboxes/NissiBeach2/"
+        path = "skyboxes/NissiBeach2/"
     } else if (letter=='c') {
-        path = "../skyboxes/LarnacaBeach/"
+        path = "skyboxes/LarnacaBeach/"
     } else if (letter=='d'){
-        path = "../skyboxes/Bridge/"
+        path = "skyboxes/Bridge/"
     } else if (letter=='e') {
-        path = "../skyboxes/SanFrancisco3/"
+        path = "skyboxes/SanFrancisco3/"
     }
 
     scene.background = new THREE.CubeTextureLoader()
