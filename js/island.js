@@ -299,6 +299,9 @@ parameters = {
     this.peak = 10;
     this.smoothing = 40;
     this.music = 0;
+    this.nothing = '';
+    this.DATGUI = function () {
+    };
     this.redraw = function () {
       render();
     };
@@ -317,18 +320,21 @@ parameters = {
   const datGui = new dat.GUI({ autoPlace: true });
   datGui.domElement.id = "gui";
 
-  var sfolder = datGui.addFolder(`Spirograph`);
-  sfolder.add(controls, "length", 180, 34900).onChange(controls.redraw);
-  sfolder.add(controls, "R", 20, 150).onChange(controls.redraw);
-  sfolder.add(controls, "l", 0, 1).onChange(controls.redraw);
-  sfolder.add(controls, "k", 0, 0.99).onChange(controls.redraw);
-  sfolder.add(controls, "visibility", 0, 1).onChange(controls.redraw);
+  datGui.add(controls, 'DATGUI');
+
 
   var cfolder = datGui.addFolder(`Camera`);
   cfolder.add(controls, "latitude", 0, 89.9).onChange(controls.redraw); // 180).onChange(controls.redraw);
   cfolder.add(controls, "longitude", -180, 180).onChange(controls.redraw);
   cfolder.add(controls, "zoom", 1.0, 7.0).onChange(controls.redraw);
   cfolder.add(controls, "axis_visibility", 0, 1).onChange(controls.redraw);
+
+  var sfolder = datGui.addFolder(`Spirograph`);
+  sfolder.add(controls, "length", 180, 34900).onChange(controls.redraw);
+  sfolder.add(controls, "R", 20, 150).onChange(controls.redraw);
+  sfolder.add(controls, "l", 0, 1).onChange(controls.redraw);
+  sfolder.add(controls, "k", 0, 0.99).onChange(controls.redraw);
+  sfolder.add(controls, "visibility", 0, 1).onChange(controls.redraw);
 
   var ptfolder = datGui.addFolder(`Perlin Terrain`);
   ptfolder.add(controls, "peak", 0, 60).onChange(controls.reTerrain);
