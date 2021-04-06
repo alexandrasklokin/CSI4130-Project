@@ -515,7 +515,7 @@ function animate() {
 
 // _____________________________________________________________________ CAMERA POSITION _________________________________________________________________________
 function camera2Pos(latitude, longtitude) {
-  var radius = 75;
+  var radius = 100;
 
   var alpha = (90 - latitude) * (Math.PI / 180);
   var beta = (longtitude + 180) * (Math.PI / 180);
