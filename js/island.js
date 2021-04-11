@@ -272,7 +272,7 @@ function init() {
     audioLoader.load("music/theelevatorbossanova.mp3", function( buffer ) {
         sound.setBuffer( buffer );
         sound.setLoop(true);
-        sound.setVolume(0.5);
+        sound.setVolume(0.005);
     });
 
 // _____________________________________________________________________ DAT GUI _________________________________________________________________________
